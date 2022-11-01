@@ -1,8 +1,10 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:turyn_viajes/models/user.dart';
 import 'package:turyn_viajes/pages/register_page.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'dart:convert';
+
 import '../repository/firebase_api.dart';
 import 'home_page.dart';
 
@@ -45,22 +47,22 @@ class _LoginPageState extends State<LoginPage> {
 
   void _validateUser() async {
     if (_email.text.isEmpty || _password.text.isEmpty) {
-      _showMsg("Debe digitar el correo y la contraceña");
+      _showMsg("Debe digitar el correo y la contrasena");
     } else {
       var result = await _firebaseApi.logInUser(_email.text, _password.text);
       String msg = "";
       if (result == "invalid-email") {
-        msg = "El correo electrónico está mal escrito";
+        msg = "El correo electónico está mal escrito";
       } else if (result == "wrong-password") {
-        msg = "Correo o contraceña incorecta";
+        msg = "Correo o contrasena incorrecta";
       } else if (result == "network-request-failed") {
-        msg = "Revise su conexión a internet";
+        msg = "Revise su conexion a internet";
       } else {
-        msg = "Bienbenid@";
+        msg = "Usuario registrado con exito";
+        _showMsg(msg);
+        Navigator.pushReplacement(
+            context, MaterialPageRoute(builder: (context) => const HomePage()));
       }
-      _showMsg("Correo o contraceña incorrecta");
-      Navigator.pushReplacement(
-          context, MaterialPageRoute(builder: (context) => const HomePage()));
     }
   }
 

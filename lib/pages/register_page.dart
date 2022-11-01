@@ -65,12 +65,30 @@ class _RegisterPageState extends State<RegisterPage> {
     );
   }
 
-  void saveUser(User user) async {
+  void _saveUser(User user) async {
+    var result = await _firebaseApi.createUser(user);
+    Navigator.pushReplacement(
+        context, MaterialPageRoute(builder: (context) => const LoginPage()));
+  }
+
+  void _registerUser(User user) async {
     //SharedPreferences prefs = await SharedPreferences.getInstance();
     //prefs.setString("user", jsonEncode(user));
     var result = await _firebaseApi.registerUser(user.email, user.password);
     String msg = "";
-
+    if (result == "invalid-email") {
+      msg = "El correo electónico está mal escrito";
+    } else if (result == "weak-password") {
+      msg = "La contrasena debe tener minimo 6 digitos";
+    } else if (result == "email-already-in-use") {
+      msg = "Ya existe una cuenta con ese correo electronico";
+    } else if (result == "network-request-failed") {
+      msg = "Revise su conexion a internet";
+    } else {
+      msg = "Usuario registrado con exito";
+      user.uid = result;
+      _saveUser(user);
+    }
     _showMsg(msg);
   }
 
@@ -90,12 +108,11 @@ class _RegisterPageState extends State<RegisterPage> {
         if (_terror) favoritos = "$favoritos Terror";
 
         //guardamos en base de datos en user
-        var user = User(
-            _name.text, _email.text, _password.text, genre, favoritos, _date);
-        saveUser(user);
+        var user = User("", _name.text, _email.text, _password.text, genre,
+            favoritos, _date);
+        _registerUser(user);
         //me traslada a la pagina de login
-        Navigator.pushReplacement(
-            context, MaterialPageRoute(builder: (context) => LoginPage()));
+
         //si las claves no son iguales envia este mensaje
       } else {
         _showMsg('Las contraceñas deben ser iguales');
