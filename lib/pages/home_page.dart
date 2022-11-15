@@ -11,6 +11,12 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        title: Text(''),
+
+      ),
+      // drawer: DrawableMenu(),
+
       body: Padding(
         padding: const EdgeInsets.symmetric(vertical: 50, horizontal: 50),
         child: SingleChildScrollView(

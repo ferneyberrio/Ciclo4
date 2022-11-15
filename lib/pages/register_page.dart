@@ -5,6 +5,8 @@ import 'package:turyn_viajes/models/user.dart';
 import 'package:turyn_viajes/pages/login_page.dart';
 import 'package:turyn_viajes/repository/firebase_api.dart';
 
+import '../main.dart';
+
 //clase
 class RegisterPage extends StatefulWidget {
   const RegisterPage({Key? key}) : super(key: key);
@@ -28,6 +30,8 @@ class _RegisterPageState extends State<RegisterPage> {
   bool _fantacia = false;
   bool _terror = false;
   String buttonMsg = "fecha de nacimiento";
+  final _llaveValidar = GlobalKey<FormState>();  // lave validacion formularios
+  String msg = "", msg2 = "", msg3 = "", msg4 = "", msgP = "";
 
   String _date = "";
 
@@ -75,27 +79,45 @@ class _RegisterPageState extends State<RegisterPage> {
     //SharedPreferences prefs = await SharedPreferences.getInstance();
     //prefs.setString("user", jsonEncode(user));
     var result = await _firebaseApi.registerUser(user.email, user.password);
-    String msg = "";
+    msg =  msg2 =  msg3 =  msg4 = msgP = "";
+    print('******Registrar dice: ********$result***********');
     if (result == "invalid-email") {
-      msg = "El correo electónico está mal escrito";
+      msg2 =  "El correo electrónico está mal escrito";
+      msgP ='Correo no valido, debe tener @, .com y sin espacios';
+    } else if (result == "wrong-password") {
+      msg3 = msgP = "contraseña incorrecta";
     } else if (result == "weak-password") {
-      msg = "La contrasena debe tener minimo 6 digitos";
-    } else if (result == "email-already-in-use") {
-      msg = "Ya existe una cuenta con ese correo electronico";
+      msg3 = msgP = "Debe tener al menos 6 caracteres ";
     } else if (result == "network-request-failed") {
-      msg = "Revise su conexion a internet";
-    } else {
-      msg = "Usuario registrado con exito";
+      msgP = "Revise su conexión a internet";
+    } else if (result == "user-not-found") {
+      msg2 = msgP = "Usuario No encontrado";
+    } else if (!_name.text.contains(' ')) {
+      msg = msgP = "Ingrese nombre completo";
+    } else if (!_email.text.contains('@') && !_email.text.contains('.com')
+    && _email.text.contains(' ')) {
+      msg2 =  "El correo electrónico está mal escrito";
+      msgP ='Correo no valido, debe tener @, .com y sin espacios';
+    }else if (_password.text != _repPassword.text || _repPassword.text.isEmpty ) {
+      msg3 = msg4 = msgP = "contraseñas no coinciden";
+    } else if (result == "unknown") {
+      // msg = "Error desconocido";
+    } else if (result =='email-already-in-use') {
+      msg2 = msgP = "Correo ya está en uso";
+    }else {
+      msgP = "Usuario registrado con éxito";
       user.uid = result;
       _saveUser(user);
     }
-    _showMsg(msg);
+    _showMsg(msgP);
+    _llaveValidar.currentState!.validate();
   }
 
   //metodo o funcion 2
   void _onRegisterButtooClicked() {
     setState(() {
-      if (_password.text == _repPassword.text) {
+      if (_date.isNotEmpty || _repPassword.text.isNotEmpty || _email.text.isNotEmpty || _name.text.isNotEmpty
+      ) {
         String genre = "Masculino";
         String favoritos = "";
 
@@ -103,8 +125,8 @@ class _RegisterPageState extends State<RegisterPage> {
           genre = "Femenino";
         }
 
-        if (_aventura) favoritos = "$favoritos Aventira";
-        if (_fantacia) favoritos = "$favoritos Fantacia";
+        if (_aventura) favoritos = "$favoritos Aventura";
+        if (_fantacia) favoritos = "$favoritos Fantasia";
         if (_terror) favoritos = "$favoritos Terror";
 
         //guardamos en base de datos en user
@@ -115,7 +137,7 @@ class _RegisterPageState extends State<RegisterPage> {
 
         //si las claves no son iguales envia este mensaje
       } else {
-        _showMsg('Las contraceñas deben ser iguales');
+        _showMsg('Revise todos los campos');
       }
     });
   }
@@ -123,60 +145,101 @@ class _RegisterPageState extends State<RegisterPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Padding(
+      appBar: AppBar(
+        title: Text('Registrarse'),
+        actions: <Widget>[
+          IconButton(
+            icon: Icon(Icons.home),
+            tooltip: 'Ir al Home',
+            onPressed: () {
+              // para redirigir
+              Navigator.push(context,
+                  MaterialPageRoute(builder: (context) => MyApp()));
+            },
+          ),
+        ],
+      ),
+      // drawer: DrawableMenu(),
+
+      body: ListView(
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-        child: Center(
-          child: SingleChildScrollView(
+        children:[
+          Form(
+            key: _llaveValidar,
             child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: <Widget>[
                 const Image(image: AssetImage('assets/images/logo.png')),
                 const SizedBox(
-                  height: 16.0,
+                  height: 15,
                 ),
                 TextFormField(
+                  validator: (valor) {
+                    if (msg!='') {
+                      return msg;
+                    }
+                    return null;
+                  }, // fin validator
                   controller: _name,
                   decoration: const InputDecoration(
-                      border: OutlineInputBorder(), labelText: 'Nombre'),
+                      border: OutlineInputBorder(), labelText: 'Nombre',hintText: 'Nombre completo'),
                   keyboardType: TextInputType.text,
                 ),
                 const SizedBox(
-                  height: 16.0,
+                  height: 15,
                 ),
                 TextFormField(
+                  validator: (valor) {
+                    if (msg2!='') {
+                      return msg2;
+                    }
+                    return null;
+                  }, // fin validator
                   controller: _email,
                   decoration: const InputDecoration(
                       border: OutlineInputBorder(),
-                      labelText: 'Correo Electrónico'),
+                      labelText: 'Correo Electrónico', hintText: 'Correo electrónico'),
                   keyboardType: TextInputType.emailAddress,
                 ),
                 const SizedBox(
-                  height: 16.0,
+                  height: 15,
                 ),
                 TextFormField(
+                  validator: (valor) {
+                    if (msg3!='') {
+                      return msg3;
+                    }
+                    return null;
+                  }, // fin validator
                   controller: _password,
                   decoration: const InputDecoration(
-                      border: OutlineInputBorder(), labelText: 'Contraceña'),
+                      border: OutlineInputBorder(), labelText: 'Contraseña',hintText: 'Ingrese Contraseña'),
                   keyboardType: TextInputType.text,
                 ),
                 const SizedBox(
-                  height: 16.0,
+                  height: 15,
                 ),
                 TextFormField(
+                  validator: (valor) {
+                    if (msg4!='') {
+                      return msg4;
+                    }
+                    return null;
+                  }, // fin validator
                   controller: _repPassword,
                   decoration: const InputDecoration(
                       border: OutlineInputBorder(),
-                      labelText: 'Repita Contraceña'),
+                      labelText: 'Contraseña',hintText: 'Repita Contraseña'),
                   keyboardType: TextInputType.text,
                 ),
                 const SizedBox(
-                  height: 16.0,
+                  height: 15,
                 ),
                 Row(
                   children: [
                     Expanded(
                       child: ListTile(
-                        title: const Text('Masculino'),
+                        title: const Text('Masc'),
                         leading: Radio<Genre>(
                           value: Genre.masculino,
                           groupValue: _genre,
@@ -190,7 +253,7 @@ class _RegisterPageState extends State<RegisterPage> {
                     ),
                     Expanded(
                       child: ListTile(
-                        title: const Text('Femenino'),
+                        title: const Text('Fem'),
                         leading: Radio<Genre>(
                           value: Genre.femenino,
                           groupValue: _genre,
@@ -205,7 +268,7 @@ class _RegisterPageState extends State<RegisterPage> {
                   ],
                 ),
                 const Text(
-                  'Generos Favoritos',
+                  'Géneros Favoritos',
                   style: TextStyle(fontSize: 20),
                 ),
                 CheckboxListTile(
@@ -219,7 +282,7 @@ class _RegisterPageState extends State<RegisterPage> {
                   },
                 ),
                 CheckboxListTile(
-                  title: const Text('Fantacia'),
+                  title: const Text('Fantasia'),
                   value: _fantacia,
                   selected: _fantacia,
                   onChanged: (bool? value) {
@@ -239,7 +302,7 @@ class _RegisterPageState extends State<RegisterPage> {
                   },
                 ),
                 const SizedBox(
-                  height: 16.0,
+                  height: 15,
                 ),
                 ElevatedButton(
                   style: TextButton.styleFrom(
@@ -250,14 +313,19 @@ class _RegisterPageState extends State<RegisterPage> {
                   },
                   child: Text(buttonMsg),
                 ),
+                const SizedBox(
+                  height: 30,
+                ),
                 ElevatedButton(
                   style: TextButton.styleFrom(
-                    textStyle: const TextStyle(fontSize: 16),
+                    textStyle: const TextStyle(fontSize: 26),
                   ),
                   onPressed: () {
+                    // _llaveValidar.currentState!.validate();
                     _onRegisterButtooClicked();
                   },
-                  child: const Text("Registrar"),
+                  child: const Text("Registrar",
+                  style: TextStyle(fontWeight: FontWeight.bold)),
                 ),
                 const SizedBox(
                   height: 16.0,
@@ -265,7 +333,7 @@ class _RegisterPageState extends State<RegisterPage> {
               ],
             ),
           ),
-        ),
+        ],
       ),
     );
   }
