@@ -55,7 +55,7 @@ class _HomePageState extends State<HomePage> {
                   height: 16.0,
                 ),
                 ElevatedButton(
-                    onPressed: () {}, child: const Text('Entre a la pagina')),
+                    onPressed: () {}, child: const Text('Entre a la página')),
               ],
             ),
           ),
