@@ -19,11 +19,14 @@ enum Genre { masculino, femenino }
 
 //variables
 class _RegisterPageState extends State<RegisterPage> {
-  final FirebaseApi _firebaseApi = FirebaseApi();
+  FirebaseApi _firebaseApi = FirebaseApi();
   final _name = TextEditingController();
   final _email = TextEditingController();
   final _password = TextEditingController();
   final _repPassword = TextEditingController();
+  final _logo = TextEditingController();
+  final _descCorta = TextEditingController();
+  final _descLarga = TextEditingController();
   String _data = "Información: ";
   Genre? _genre = Genre.masculino;
   bool _aventura = false;
@@ -32,6 +35,7 @@ class _RegisterPageState extends State<RegisterPage> {
   String buttonMsg = "fecha de nacimiento";
   final _llaveValidar = GlobalKey<FormState>();  // lave validacion formularios
   String msg = "", msg2 = "", msg3 = "", msg4 = "", msgP = "";
+  bool visilogo = false, visidesC = false, visidesL = false;
 
   String _date = "";
 
@@ -69,13 +73,13 @@ class _RegisterPageState extends State<RegisterPage> {
     );
   }
 
-  void _saveUser(User user) async {
+  void _saveUser(Usuar user) async {
     var result = await _firebaseApi.createUser(user);
     Navigator.pushReplacement(
-        context, MaterialPageRoute(builder: (context) => const LoginPage()));
+        context, MaterialPageRoute(builder: (context) =>  LoginPage()));
   }
 
-  void _registerUser(User user) async {
+  void _registerUser(Usuar user) async {
     //SharedPreferences prefs = await SharedPreferences.getInstance();
     //prefs.setString("user", jsonEncode(user));
     var result = await _firebaseApi.registerUser(user.email, user.password);
@@ -109,8 +113,10 @@ class _RegisterPageState extends State<RegisterPage> {
       user.uid = result;
       _saveUser(user);
     }
+    print('************logro pasara caa');
     _showMsg(msgP);
     _llaveValidar.currentState!.validate();
+
   }
 
   //metodo o funcion 2
@@ -130,8 +136,8 @@ class _RegisterPageState extends State<RegisterPage> {
         if (_terror) favoritos = "$favoritos Terror";
 
         //guardamos en base de datos en user
-        var user = User("", _name.text, _email.text, _password.text, genre,
-            favoritos, _date);
+        var user = Usuar('', _name.text, _email.text, _password.text, genre,
+            favoritos, _date, _logo.text, _descCorta.text, _descLarga.text);
         _registerUser(user);
         //me traslada a la pagina de login
 
@@ -149,12 +155,13 @@ class _RegisterPageState extends State<RegisterPage> {
         title: Text('Registrarse'),
         actions: <Widget>[
           IconButton(
-            icon: Icon(Icons.home),
+            icon: Icon(Icons.art_track),
             tooltip: 'Ir al Home',
             onPressed: () {
               // para redirigir
-              Navigator.push(context,
-                  MaterialPageRoute(builder: (context) => MyApp()));
+              _toggleFieldView();
+              // Navigator.push(context,
+              //     MaterialPageRoute(builder: (context) => MyApp()));
             },
           ),
         ],
@@ -181,7 +188,7 @@ class _RegisterPageState extends State<RegisterPage> {
                     return null;
                   }, // fin validator
                   controller: _name,
-                  decoration: const InputDecoration(
+                  decoration:  InputDecoration(
                       border: OutlineInputBorder(), labelText: 'Nombre',hintText: 'Nombre completo'),
                   keyboardType: TextInputType.text,
                 ),
@@ -196,7 +203,7 @@ class _RegisterPageState extends State<RegisterPage> {
                     return null;
                   }, // fin validator
                   controller: _email,
-                  decoration: const InputDecoration(
+                  decoration:  InputDecoration(
                       border: OutlineInputBorder(),
                       labelText: 'Correo Electrónico', hintText: 'Correo electrónico'),
                   keyboardType: TextInputType.emailAddress,
@@ -212,7 +219,7 @@ class _RegisterPageState extends State<RegisterPage> {
                     return null;
                   }, // fin validator
                   controller: _password,
-                  decoration: const InputDecoration(
+                  decoration:  InputDecoration(
                       border: OutlineInputBorder(), labelText: 'Contraseña',hintText: 'Ingrese Contraseña'),
                   keyboardType: TextInputType.text,
                 ),
@@ -227,7 +234,7 @@ class _RegisterPageState extends State<RegisterPage> {
                     return null;
                   }, // fin validator
                   controller: _repPassword,
-                  decoration: const InputDecoration(
+                  decoration:  InputDecoration(
                       border: OutlineInputBorder(),
                       labelText: 'Contraseña',hintText: 'Repita Contraseña'),
                   keyboardType: TextInputType.text,
@@ -235,11 +242,48 @@ class _RegisterPageState extends State<RegisterPage> {
                 const SizedBox(
                   height: 15,
                 ),
+                Visibility(
+                  visible: visilogo,
+                  child: TextFormField(
+                    controller: _logo,
+                    decoration:  InputDecoration(
+                        border: OutlineInputBorder(), labelText: 'Imagen',hintText: 'Link Imagen de muestra'),
+                    keyboardType: TextInputType.url,
+                  ),
+                ),
+                const SizedBox(
+                  height: 15,
+                ),
+                Visibility(
+                  visible: visidesC,
+                  child: TextFormField(
+                    controller: _descCorta,
+                    decoration:  InputDecoration(
+                        border: OutlineInputBorder(), labelText: 'Descripción corta',hintText: 'Descripción corta'),
+                    keyboardType: TextInputType.text,
+                  ),
+                ),
+                const SizedBox(
+                  height: 15,
+                ),
+                Visibility(
+                  visible: visidesL,
+                  child: TextFormField(
+                    controller: _descLarga,
+                    decoration:  InputDecoration(
+                        border: OutlineInputBorder(), labelText: 'Descripción Larga',hintText: 'Descripción Larga'),
+                    keyboardType: TextInputType.text,
+                  ),
+                ),
+
+                const SizedBox(
+                  height: 15,
+                ),
                 Row(
                   children: [
                     Expanded(
                       child: ListTile(
-                        title: const Text('Masc'),
+                        title:  Text('Masc'),
                         leading: Radio<Genre>(
                           value: Genre.masculino,
                           groupValue: _genre,
@@ -253,7 +297,7 @@ class _RegisterPageState extends State<RegisterPage> {
                     ),
                     Expanded(
                       child: ListTile(
-                        title: const Text('Fem'),
+                        title:  Text('Fem'),
                         leading: Radio<Genre>(
                           value: Genre.femenino,
                           groupValue: _genre,
@@ -272,7 +316,7 @@ class _RegisterPageState extends State<RegisterPage> {
                   style: TextStyle(fontSize: 20),
                 ),
                 CheckboxListTile(
-                  title: const Text('Aventura'),
+                  title:  Text('Aventura'),
                   value: _aventura,
                   selected: _aventura,
                   onChanged: (bool? value) {
@@ -282,7 +326,7 @@ class _RegisterPageState extends State<RegisterPage> {
                   },
                 ),
                 CheckboxListTile(
-                  title: const Text('Fantasia'),
+                  title:  Text('Fantasia'),
                   value: _fantacia,
                   selected: _fantacia,
                   onChanged: (bool? value) {
@@ -292,7 +336,7 @@ class _RegisterPageState extends State<RegisterPage> {
                   },
                 ),
                 CheckboxListTile(
-                  title: const Text('Terror'),
+                  title:  Text('Terror'),
                   value: _terror,
                   selected: _terror,
                   onChanged: (bool? value) {
@@ -337,4 +381,9 @@ class _RegisterPageState extends State<RegisterPage> {
       ),
     );
   }
+  _toggleFieldView() {
+    setState(() {
+      visilogo = visidesC = visidesL = true;
+    });
+  } // fin _toggleFieldView();
 }

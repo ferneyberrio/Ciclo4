@@ -27,7 +27,7 @@ class DrawableMenu extends StatelessWidget {
                     ),
                   ),
                 ),
-                Text('ViajenComodos',
+                Text('Turyn_viajes',
                   style: TextStyle(
                     fontSize: 24,
 

@@ -1,11 +1,13 @@
 import 'dart:convert';
 
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:turyn_viajes/main.dart';
-import 'package:turyn_viajes/models/user.dart';
+import 'package:turyn_viajes/pages/perfilsitios.dart';
 import 'package:turyn_viajes/pages/register_page.dart';
 
+import '../models/user.dart';
 import '../repository/firebase_api.dart';
 import 'drawablemenu.dart';
 import 'home_page.dart';
@@ -24,7 +26,7 @@ class _LoginPageState extends State<LoginPage> {
   String msg = "", msg2 = "";
   bool esHidenPassword = true; // visibilidad password
 
-  User userLoad = User.Empty();
+  Usuar userLoad = Usuar.Empty();
   final FirebaseApi _firebaseApi = FirebaseApi();
 
   @override
@@ -36,7 +38,7 @@ class _LoginPageState extends State<LoginPage> {
   _getUser() async {
     SharedPreferences pref = await SharedPreferences.getInstance();
     Map<String, dynamic> userMap = jsonDecode(pref.getString("user")!);
-    userLoad = User.fromJson(userMap);
+    userLoad = Usuar.fromJson(userMap);
   }
 
   void _showMsg(String msg) {
@@ -71,10 +73,11 @@ class _LoginPageState extends State<LoginPage> {
         msg = "Error desconocido";
       } else if (result =='email-already-in-use') {
         msg = "Correo ya esta en uso";
-      } else {
+      } else if (result != null) {
         msg = "Usuario registrado con éxito";
+        var k = (FirebaseAuth.instance.currentUser?.uid); // consultar id usuario
         Navigator.pushReplacement(
-            context, MaterialPageRoute(builder: (context) => const HomePage()));
+            context, MaterialPageRoute(builder: (context) =>  PerfilSitios(k)));
       }
       _showMsg(msg);
       _llaveValidar.currentState!.validate();
