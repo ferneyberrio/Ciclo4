@@ -1,12 +1,14 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:turyn_viajes/main.dart';
-
+import 'package:turyn_viajes/pages/googlemaps.dart';
+import '../models/geo.dart';
+import '../models/user.dart';
 import 'drawablemenu.dart';
 
 class ListaSitios extends StatefulWidget {
   final dk;
-  const ListaSitios(this.dk,{Key? key}) : super(key: key);
+  const ListaSitios(this.dk, {Key? key}) : super(key: key);
 
   @override
   State<ListaSitios> createState() => _ListaSitiosState();
@@ -27,21 +29,22 @@ class _ListaSitiosState extends State<ListaSitios> {
               tooltip: 'Ir al Home',
               onPressed: () {
                 // para redirigir
-                Navigator.push(context,
-                    MaterialPageRoute(builder: (context) => MyApp()));
+                Navigator.push(
+                    context, MaterialPageRoute(builder: (context) => MyApp()));
                 // ScaffoldMessenger.of(context).showSnackBar(
                 //     SnackBar(content: Text('This is a snackbar')));
               },
             ),
           ],
         ),
-      // drawer: DrawableMenu(),
+        // drawer: DrawableMenu(),
         body: Padding(
           // mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          padding:  EdgeInsets.all(5),
+          padding: EdgeInsets.all(5),
           child: StreamBuilder<QuerySnapshot>(
             stream: FirebaseFirestore.instance
-                .collection('users').where('uid',isEqualTo:k)
+                .collection('users')
+                .where('uid', isEqualTo: k)
                 .snapshots(), // llerr datos FB
             builder: (context, snapshot) {
               if (snapshot.hasError) {
@@ -71,9 +74,34 @@ class _ListaSitiosState extends State<ListaSitios> {
                                 // color: Colors.black
                               ),
                             ),
-                            subtitle:
-                            Text('${usuarioFB['descLarga']}  '),
+                            subtitle: Text('${usuarioFB['descLarga']}  '),
                             leading: Image.network(usuarioFB['logo']),
+                          ),
+                        ),
+                        Card(
+                          elevation: 5,
+                          color: Colors.blue,
+                          child: ListTile(
+                            title: Text(
+                              'Ubicación :   ',
+                              style: const TextStyle(
+                                fontSize: 24,
+                                fontWeight: FontWeight.bold,
+                                // color: Colors.black
+                              ),
+                            ),
+                            subtitle: Text('${usuarioFB['longitud']}  ${usuarioFB['latitud']}  ${usuarioFB['direccion']}  '),
+                          onTap: (){
+                            DatosGeolocalizacion loc=DatosGeolocalizacion(
+                                double.parse(usuarioFB['longitud'] ), double.parse(usuarioFB['latitud']),
+                                usuarioFB['direccion']);
+
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) =>
+                                        Geolocalizacion(loc)));
+                          },
                           ),
                         ),
                       ],
@@ -87,6 +115,5 @@ class _ListaSitiosState extends State<ListaSitios> {
         ),
       ),
     );
-
   }
 }

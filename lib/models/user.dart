@@ -9,6 +9,9 @@ class Usuar {
   var _logo;
   var _descCorta;
   var _descLarga;
+  var _latitud;
+  var _longitud;
+  var _direccion;
 
   Usuar(
       this._uid,
@@ -20,7 +23,11 @@ class Usuar {
       this._bornDate,
       this._logo,
       this._descCorta,
-      this._descLarga);
+      this._descLarga,
+      this._latitud,
+      this._longitud,
+      this._direccion);
+
 
   Usuar.Empty();
 
@@ -34,7 +41,10 @@ class Usuar {
         _bornDate = json['bornDate'],
         _logo = json['logo'],
         _descCorta = json['descCorta'],
-        _descLarga = json['descLarga'];
+        _descLarga = json['descLarga'],
+        _latitud = json['latitud'],
+        _longitud = json['longitud'],
+        _direccion = json['direccion'];
 
   Map<String, dynamic> toJson() => {
         'uid': _uid,
@@ -46,10 +56,19 @@ class Usuar {
         'bornDate': _bornDate,
         'logo': _logo,
         'descCorta': _descCorta,
-        'descLarga': _descLarga
+        'descLarga': _descLarga,
+        'latitud': _latitud,
+        'longitud': _longitud,
+        'direccion': _direccion
       };
 
   get logo => _logo;
+
+  get direccion => _direccion;
+
+  set direccion(value) {
+    _direccion = value;
+  }
 
   set logo(value) {
     _logo = value;
@@ -62,6 +81,12 @@ class Usuar {
   }
 
   get name => _name;
+
+  get latitud => _latitud;
+
+  set latitud(value) {
+    _latitud = value;
+  }
 
   set name(value) {
     _name = value;
@@ -107,5 +132,11 @@ class Usuar {
 
   set descLarga(value) {
     _descLarga = value;
+  }
+
+  get longitud => _longitud;
+
+  set longitud(value) {
+    _longitud = value;
   }
 }

@@ -35,11 +35,27 @@ class FirebaseApi {
   }
 
   Future<String> createUser(Usuar user) async {
+    print('*******************>>>>>>>ingreso a crear usuario');
     try {
+      print('*******************>>>>>>>try');
       final documento = await FirebaseFirestore.instance
           .collection("users")
           .doc(user.uid)
           .set(user.toJson());
+      print('*******************>>>>>>>try terminado');
+      return user.uid;
+    } on FirebaseException catch (e) {
+      print("FirebaseException ${e.code}");
+      return e.code;
+    }
+  }
+
+  Future<String> updateUser(Usuar user) async {
+    try {
+      final documento = await FirebaseFirestore.instance
+          .collection("users")
+          .doc(user.uid)
+          .update(user.toJson());
       return user.uid;
     } on FirebaseException catch (e) {
       print("FirebaseException ${e.code}");

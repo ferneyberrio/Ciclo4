@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -20,9 +21,13 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
+  Usuar usu = Usuar('', 'f', 'b', '', '', '', '', '', '', '', '', '', '');
+  List sitios = [];
+  List<dynamic> idDoc = [];
+
   final _email = TextEditingController();
   final _password = TextEditingController();
-  final _llaveValidar = GlobalKey<FormState>();  // lave validacion formularios
+  final _llaveValidar = GlobalKey<FormState>(); // lave validacion formularios
   String msg = "", msg2 = "";
   bool esHidenPassword = true; // visibilidad password
 
@@ -71,19 +76,23 @@ class _LoginPageState extends State<LoginPage> {
         msg = "Usuario No encontrado";
       } else if (result == "unknown") {
         msg = "Error desconocido";
-      } else if (result =='email-already-in-use') {
+      } else if (result == 'email-already-in-use') {
         msg = "Correo ya esta en uso";
       } else if (result != null) {
         msg = "Usuario registrado con éxito";
-        var k = (FirebaseAuth.instance.currentUser?.uid); // consultar id usuario
+        var key =
+        (FirebaseAuth.instance.currentUser?.uid); // consultar id usuario
+        getDatos(key.toString());
         Navigator.pushReplacement(
-            context, MaterialPageRoute(builder: (context) =>  PerfilSitios(k)));
+            context,
+            MaterialPageRoute(
+                builder: (context) => HomePage(key)));
       }
       _showMsg(msg);
       _llaveValidar.currentState!.validate();
-
     }
   }
+
   _togglePasswordView() {
     setState(() {
       esHidenPassword = !esHidenPassword; // cambiar visibilidad
@@ -93,106 +102,121 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Login'),
-        actions: <Widget>[
-          IconButton(
-            icon: Icon(Icons.arrow_back_ios),
-            tooltip: 'Ir al Home',
-            onPressed: () {
-              // para redirigir
-              Navigator.push(context,
-                  MaterialPageRoute(builder: (context) => MyApp()));
-            },
-          ),
-        ],
-      ),
       // drawer: DrawableMenu(),
       body: ListView(
         // padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-        padding: EdgeInsets.all(5),
+        padding: EdgeInsets.all(50),
         children: [
-         Form(
-          key: _llaveValidar,
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: <Widget>[
-              const Image(
-                image: AssetImage('assets/images/logo.png'),
-              ),
-              const SizedBox(
-                height: 50,
-              ),
-              TextFormField(
-                validator: (valor) {
-                  if (msg!='') {
-                    return msg;
-                  }
-                  return null;
-                }, // fin validator
-                controller: _email,
-                decoration: const InputDecoration(
-                    icon: Icon(
-                      Icons.account_circle,
-                    ),
-
-                    border: OutlineInputBorder(),
-                    labelText: 'Correo Electrónico',hintText: "Ingrese su correo" ),
-                keyboardType: TextInputType.emailAddress,
-              ),
-              const SizedBox(
-                height: 50,
-              ),
-              TextFormField(
-                validator: (valor) {
-                  if (msg2!='') {
-                    return msg2;
-                  }
-                  return null;
-                }, // fin validator
-                controller: _password,
-                decoration: const InputDecoration(
-                    icon: Icon(
-                      Icons.password,
-                    ),
-                    suffixIcon: InkWell(
-                        // onTap: _togglePasswordView,
-                        child: Icon(
-                          Icons.visibility,
-                          // size: 30,
-                        )),
-
-                    border: OutlineInputBorder(), labelText: 'Contraseña',hintText: "Ingrese su contraseña"),
-                keyboardType: TextInputType.emailAddress,
-                obscureText: esHidenPassword,
-              ),
-              const SizedBox(
-                height: 50,
-              ),
-              ElevatedButton(
-                  onPressed: () {
-                    _validateUser();
-                    // _llaveValidar.currentState!.validate();
-                  },
-                  child: const Text('Iniciar sesión')),
-              TextButton(
-                style: TextButton.styleFrom(
-                  textStyle: const TextStyle(
-                      fontSize: 16,
-                      fontStyle: FontStyle.italic,
-                      color: Colors.blue),
+          Form(
+            key: _llaveValidar,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: <Widget>[
+                const Image(
+                  image: AssetImage('assets/images/logo.png'),
                 ),
-                onPressed: () {
-                  Navigator.push(context,
-                      MaterialPageRoute(builder: (context) => RegisterPage()));
-                },
-                child: const Text('Regístrese'),
-              ),
-            ],
+                const SizedBox(
+                  height: 50,
+                ),
+                TextFormField(
+                  validator: (valor) {
+                    if (msg != '') {
+                      return msg;
+                    }
+                    return null;
+                  }, // fin validator
+                  controller: _email,
+                  decoration: const InputDecoration(
+                      icon: Icon(
+                        Icons.account_circle,
+                      ),
+                      border: OutlineInputBorder(),
+                      labelText: 'Correo Electrónico',
+                      hintText: "Ingrese su correo"),
+                  keyboardType: TextInputType.emailAddress,
+                ),
+                const SizedBox(
+                  height: 50,
+                ),
+                TextFormField(
+                  validator: (valor) {
+                    if (msg2 != '') {
+                      return msg2;
+                    }
+                    return null;
+                  }, // fin validator
+                  controller: _password,
+                  decoration: const InputDecoration(
+                      icon: Icon(
+                        Icons.password,
+                      ),
+                      suffixIcon: InkWell(
+                        // onTap: _togglePasswordView,
+                          child: Icon(
+                            Icons.visibility,
+                            // size: 30,
+                          )),
+                      border: OutlineInputBorder(),
+                      labelText: 'Contraseña',
+                      hintText: "Ingrese su contraseña"),
+                  keyboardType: TextInputType.emailAddress,
+                  obscureText: esHidenPassword,
+                ),
+                const SizedBox(
+                  height: 50,
+                ),
+                ElevatedButton(
+                    onPressed: () {
+                      _validateUser();
+                      // _llaveValidar.currentState!.validate();
+                    },
+                    child: const Text('Iniciar sesión')),
+                TextButton(
+                  style: TextButton.styleFrom(
+                    textStyle: const TextStyle(
+                        fontSize: 16,
+                        fontStyle: FontStyle.italic,
+                        color: Colors.blue),
+                  ),
+                  onPressed: () {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => RegisterPage()));
+                  },
+                  child: const Text('Regístrese'),
+                ),
+              ],
+            ),
           ),
-        ),
         ],
       ),
     );
+  }
+  @override
+  Future getDatos(String ky) async {
+
+    idDoc.clear();
+    sitios.clear();
+    String id = "";
+    QuerySnapshot paseoCiudad = await FirebaseFirestore.instance
+        .collection("users")
+        .where("uid", isEqualTo: ky)
+        .get();
+
+    setState(() {
+      if (paseoCiudad.docs.isNotEmpty) {
+        for (var pas in paseoCiudad.docs) {
+          id = pas.id; //Trae el id
+          idDoc.add(id);
+          sitios.add(pas.data());
+          // print("------------------------>>>>>>>>>>>>>>>>>>><<< ID " + id);
+          // print("------------------------>>>>>>>>>>>>>>>>>>><<< " +
+          //     pas.data().toString());
+          print('---------------->>>>>>>> ${idDoc}    ***************** ${sitios}');
+        }
+      }
+    });
+
   }
 }

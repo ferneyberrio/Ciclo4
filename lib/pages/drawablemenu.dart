@@ -27,11 +27,12 @@ class DrawableMenu extends StatelessWidget {
                     ),
                   ),
                 ),
-                Text('Turyn_viajes',
+                Text(
+                  'Turyn_viajes',
                   style: TextStyle(
                     fontSize: 24,
-
-                  ),)
+                  ),
+                )
               ],
             ),
             // child: Text('VIAJENCOMODOS'),
@@ -56,7 +57,6 @@ class DrawableMenu extends StatelessWidget {
             textColor: Colors.black,
             onTap: () {},
           ),
-
         ],
       ),
     );

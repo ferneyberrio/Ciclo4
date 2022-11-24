@@ -27,13 +27,17 @@ class _RegisterPageState extends State<RegisterPage> {
   final _logo = TextEditingController();
   final _descCorta = TextEditingController();
   final _descLarga = TextEditingController();
+  final _latitud = TextEditingController();
+  final _longitud = TextEditingController();
+  final _direccion = TextEditingController();
+
   String _data = "Información: ";
   Genre? _genre = Genre.masculino;
   bool _aventura = false;
   bool _fantacia = false;
   bool _terror = false;
   String buttonMsg = "fecha de nacimiento";
-  final _llaveValidar = GlobalKey<FormState>();  // lave validacion formularios
+  final _llaveValidar = GlobalKey<FormState>(); // lave validacion formularios
   String msg = "", msg2 = "", msg3 = "", msg4 = "", msgP = "";
   bool visilogo = false, visidesC = false, visidesL = false;
 
@@ -74,20 +78,22 @@ class _RegisterPageState extends State<RegisterPage> {
   }
 
   void _saveUser(Usuar user) async {
+    print('*******************>>>>>>>ingreso empezar a guardar');
     var result = await _firebaseApi.createUser(user);
+    print('*******************>>>>>>>salio de crear usuario');
     Navigator.pushReplacement(
-        context, MaterialPageRoute(builder: (context) =>  LoginPage()));
+        context, MaterialPageRoute(builder: (context) => LoginPage()));
   }
 
   void _registerUser(Usuar user) async {
     //SharedPreferences prefs = await SharedPreferences.getInstance();
     //prefs.setString("user", jsonEncode(user));
     var result = await _firebaseApi.registerUser(user.email, user.password);
-    msg =  msg2 =  msg3 =  msg4 = msgP = "";
+    msg = msg2 = msg3 = msg4 = msgP = "";
     print('******Registrar dice: ********$result***********');
     if (result == "invalid-email") {
-      msg2 =  "El correo electrónico está mal escrito";
-      msgP ='Correo no valido, debe tener @, .com y sin espacios';
+      msg2 = "El correo electrónico está mal escrito";
+      msgP = 'Correo no valido, debe tener @, .com y sin espacios';
     } else if (result == "wrong-password") {
       msg3 = msgP = "contraseña incorrecta";
     } else if (result == "weak-password") {
@@ -98,32 +104,34 @@ class _RegisterPageState extends State<RegisterPage> {
       msg2 = msgP = "Usuario No encontrado";
     } else if (!_name.text.contains(' ')) {
       msg = msgP = "Ingrese nombre completo";
-    } else if (!_email.text.contains('@') && !_email.text.contains('.com')
-    && _email.text.contains(' ')) {
-      msg2 =  "El correo electrónico está mal escrito";
-      msgP ='Correo no valido, debe tener @, .com y sin espacios';
-    }else if (_password.text != _repPassword.text || _repPassword.text.isEmpty ) {
+    } else if (!_email.text.contains('@') &&
+        !_email.text.contains('.com') &&
+        _email.text.contains(' ')) {
+      msg2 = "El correo electrónico está mal escrito";
+      msgP = 'Correo no valido, debe tener @, .com y sin espacios';
+    } else if (_password.text != _repPassword.text ||
+        _repPassword.text.isEmpty) {
       msg3 = msg4 = msgP = "contraseñas no coinciden";
     } else if (result == "unknown") {
       // msg = "Error desconocido";
-    } else if (result =='email-already-in-use') {
+    } else if (result == 'email-already-in-use') {
       msg2 = msgP = "Correo ya está en uso";
-    }else {
+    } else {
       msgP = "Usuario registrado con éxito";
       user.uid = result;
       _saveUser(user);
     }
-    print('************logro pasara caa');
     _showMsg(msgP);
     _llaveValidar.currentState!.validate();
-
   }
 
   //metodo o funcion 2
   void _onRegisterButtooClicked() {
     setState(() {
-      if (_date.isNotEmpty || _repPassword.text.isNotEmpty || _email.text.isNotEmpty || _name.text.isNotEmpty
-      ) {
+      if (_date.isNotEmpty ||
+          _repPassword.text.isNotEmpty ||
+          _email.text.isNotEmpty ||
+          _name.text.isNotEmpty) {
         String genre = "Masculino";
         String favoritos = "";
 
@@ -137,7 +145,8 @@ class _RegisterPageState extends State<RegisterPage> {
 
         //guardamos en base de datos en user
         var user = Usuar('', _name.text, _email.text, _password.text, genre,
-            favoritos, _date, _logo.text, _descCorta.text, _descLarga.text);
+            favoritos, _date, _logo.text, _descCorta.text, _descLarga.text,
+        _latitud.text, _longitud.text, _direccion.text);
         _registerUser(user);
         //me traslada a la pagina de login
 
@@ -170,7 +179,7 @@ class _RegisterPageState extends State<RegisterPage> {
 
       body: ListView(
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-        children:[
+        children: [
           Form(
             key: _llaveValidar,
             child: Column(
@@ -182,14 +191,16 @@ class _RegisterPageState extends State<RegisterPage> {
                 ),
                 TextFormField(
                   validator: (valor) {
-                    if (msg!='') {
+                    if (msg != '') {
                       return msg;
                     }
                     return null;
                   }, // fin validator
                   controller: _name,
-                  decoration:  InputDecoration(
-                      border: OutlineInputBorder(), labelText: 'Nombre',hintText: 'Nombre completo'),
+                  decoration: InputDecoration(
+                      border: OutlineInputBorder(),
+                      labelText: 'Nombre',
+                      hintText: 'Nombre completo'),
                   keyboardType: TextInputType.text,
                 ),
                 const SizedBox(
@@ -197,15 +208,16 @@ class _RegisterPageState extends State<RegisterPage> {
                 ),
                 TextFormField(
                   validator: (valor) {
-                    if (msg2!='') {
+                    if (msg2 != '') {
                       return msg2;
                     }
                     return null;
                   }, // fin validator
                   controller: _email,
-                  decoration:  InputDecoration(
+                  decoration: InputDecoration(
                       border: OutlineInputBorder(),
-                      labelText: 'Correo Electrónico', hintText: 'Correo electrónico'),
+                      labelText: 'Correo Electrónico',
+                      hintText: 'Correo electrónico'),
                   keyboardType: TextInputType.emailAddress,
                 ),
                 const SizedBox(
@@ -213,14 +225,16 @@ class _RegisterPageState extends State<RegisterPage> {
                 ),
                 TextFormField(
                   validator: (valor) {
-                    if (msg3!='') {
+                    if (msg3 != '') {
                       return msg3;
                     }
                     return null;
                   }, // fin validator
                   controller: _password,
-                  decoration:  InputDecoration(
-                      border: OutlineInputBorder(), labelText: 'Contraseña',hintText: 'Ingrese Contraseña'),
+                  decoration: InputDecoration(
+                      border: OutlineInputBorder(),
+                      labelText: 'Contraseña',
+                      hintText: 'Ingrese Contraseña'),
                   keyboardType: TextInputType.text,
                 ),
                 const SizedBox(
@@ -228,54 +242,84 @@ class _RegisterPageState extends State<RegisterPage> {
                 ),
                 TextFormField(
                   validator: (valor) {
-                    if (msg4!='') {
+                    if (msg4 != '') {
                       return msg4;
                     }
                     return null;
                   }, // fin validator
                   controller: _repPassword,
-                  decoration:  InputDecoration(
+                  decoration: InputDecoration(
                       border: OutlineInputBorder(),
-                      labelText: 'Contraseña',hintText: 'Repita Contraseña'),
+                      labelText: 'Contraseña',
+                      hintText: 'Repita Contraseña'),
                   keyboardType: TextInputType.text,
                 ),
                 const SizedBox(
                   height: 15,
                 ),
-                Visibility(
-                  visible: visilogo,
-                  child: TextFormField(
-                    controller: _logo,
-                    decoration:  InputDecoration(
-                        border: OutlineInputBorder(), labelText: 'Imagen',hintText: 'Link Imagen de muestra'),
-                    keyboardType: TextInputType.url,
-                  ),
+                TextFormField(
+                  controller: _logo,
+                  decoration: InputDecoration(
+                      border: OutlineInputBorder(),
+                      labelText: 'Imagen',
+                      hintText: 'Link Imagen de muestra'),
+                  keyboardType: TextInputType.url,
+                ),
+                TextFormField(
+                  controller: _descCorta,
+                  decoration: InputDecoration(
+                      border: OutlineInputBorder(),
+                      labelText: 'Descripción corta',
+                      hintText: 'Descripción corta'),
+                  keyboardType: TextInputType.text,
                 ),
                 const SizedBox(
                   height: 15,
                 ),
-                Visibility(
-                  visible: visidesC,
-                  child: TextFormField(
-                    controller: _descCorta,
-                    decoration:  InputDecoration(
-                        border: OutlineInputBorder(), labelText: 'Descripción corta',hintText: 'Descripción corta'),
-                    keyboardType: TextInputType.text,
-                  ),
+                TextFormField(
+                  controller: _descLarga,
+                  decoration: InputDecoration(
+                      border: OutlineInputBorder(),
+                      labelText: 'Descripción Larga',
+                      hintText: 'Descripción Larga'),
+                  keyboardType: TextInputType.text,
                 ),
                 const SizedBox(
                   height: 15,
                 ),
-                Visibility(
-                  visible: visidesL,
-                  child: TextFormField(
-                    controller: _descLarga,
-                    decoration:  InputDecoration(
-                        border: OutlineInputBorder(), labelText: 'Descripción Larga',hintText: 'Descripción Larga'),
-                    keyboardType: TextInputType.text,
-                  ),
+                TextFormField(
+                  controller: _latitud,
+                  decoration: InputDecoration(
+                      border: OutlineInputBorder(),
+                      labelText: 'latitud',
+                      hintText: 'ingrese latitud'),
+                  keyboardType: TextInputType.number,
                 ),
-
+                const SizedBox(
+                  height: 15,
+                ),
+                TextFormField(
+                  controller: _longitud,
+                  decoration: InputDecoration(
+                      border: OutlineInputBorder(),
+                      labelText: 'longitud',
+                      hintText: 'Ingrese longitud'),
+                  keyboardType: TextInputType.number,
+                ),
+                const SizedBox(
+                  height: 15,
+                ),
+                TextFormField(
+                  controller: _direccion,
+                  decoration: InputDecoration(
+                      border: OutlineInputBorder(),
+                      labelText: 'direccion',
+                      hintText: 'Ingrese direccion'),
+                  keyboardType: TextInputType.number,
+                ),
+                const SizedBox(
+                  height: 15,
+                ),
                 const SizedBox(
                   height: 15,
                 ),
@@ -283,7 +327,7 @@ class _RegisterPageState extends State<RegisterPage> {
                   children: [
                     Expanded(
                       child: ListTile(
-                        title:  Text('Masc'),
+                        title: Text('Masc'),
                         leading: Radio<Genre>(
                           value: Genre.masculino,
                           groupValue: _genre,
@@ -297,7 +341,7 @@ class _RegisterPageState extends State<RegisterPage> {
                     ),
                     Expanded(
                       child: ListTile(
-                        title:  Text('Fem'),
+                        title: Text('Fem'),
                         leading: Radio<Genre>(
                           value: Genre.femenino,
                           groupValue: _genre,
@@ -316,7 +360,7 @@ class _RegisterPageState extends State<RegisterPage> {
                   style: TextStyle(fontSize: 20),
                 ),
                 CheckboxListTile(
-                  title:  Text('Aventura'),
+                  title: Text('Aventura'),
                   value: _aventura,
                   selected: _aventura,
                   onChanged: (bool? value) {
@@ -326,7 +370,7 @@ class _RegisterPageState extends State<RegisterPage> {
                   },
                 ),
                 CheckboxListTile(
-                  title:  Text('Fantasia'),
+                  title: Text('Fantasia'),
                   value: _fantacia,
                   selected: _fantacia,
                   onChanged: (bool? value) {
@@ -336,7 +380,7 @@ class _RegisterPageState extends State<RegisterPage> {
                   },
                 ),
                 CheckboxListTile(
-                  title:  Text('Terror'),
+                  title: Text('Terror'),
                   value: _terror,
                   selected: _terror,
                   onChanged: (bool? value) {
@@ -369,7 +413,7 @@ class _RegisterPageState extends State<RegisterPage> {
                     _onRegisterButtooClicked();
                   },
                   child: const Text("Registrar",
-                  style: TextStyle(fontWeight: FontWeight.bold)),
+                      style: TextStyle(fontWeight: FontWeight.bold)),
                 ),
                 const SizedBox(
                   height: 16.0,
@@ -381,6 +425,7 @@ class _RegisterPageState extends State<RegisterPage> {
       ),
     );
   }
+
   _toggleFieldView() {
     setState(() {
       visilogo = visidesC = visidesL = true;

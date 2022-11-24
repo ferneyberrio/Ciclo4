@@ -1,12 +1,11 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-
 import 'drawablemenu.dart';
 import 'listasitios.dart';
 
 class PerfilSitios extends StatefulWidget {
-  final dk;
-  const PerfilSitios(this.dk, {Key? key}) : super(key: key);
+  final id;
+  const PerfilSitios(this.id, {Key? key}) : super(key: key);
 
   @override
   State<PerfilSitios> createState() => _PerfilSitiosState();
@@ -15,7 +14,7 @@ class PerfilSitios extends StatefulWidget {
 class _PerfilSitiosState extends State<PerfilSitios> {
   @override
   Widget build(BuildContext context) {
-    var k = widget.dk; // leo variable de otro widget
+    var k = widget.id; // leo variable de otro widget
     return MaterialApp(
       home: Scaffold(
         appBar: AppBar(
@@ -26,7 +25,10 @@ class _PerfilSitiosState extends State<PerfilSitios> {
           padding: EdgeInsets.all(5),
           child: StreamBuilder<QuerySnapshot>(
             // consultar en base de datos usuarios
-            stream: FirebaseFirestore.instance.collection('users').where('logo',isNotEqualTo: '' ).snapshots(),
+            stream: FirebaseFirestore.instance
+                .collection('users')
+                .where('logo', isNotEqualTo: '')
+                .snapshots(),
             // stream: FirebaseFirestore.instance.collection('usuario').where('id',isEqualTo:k).snapshots(),
 
             builder: (context, snapshot) {
@@ -42,7 +44,7 @@ class _PerfilSitiosState extends State<PerfilSitios> {
                     itemCount: snapshot.data?.docs.length,
                     itemBuilder: (context, index) {
                       QueryDocumentSnapshot usuarioFB =
-                          snapshot.data!.docs[index];
+                      snapshot.data!.docs[index];
                       return Column(
                         children: [
                           Card(
@@ -75,7 +77,8 @@ class _PerfilSitiosState extends State<PerfilSitios> {
                                 Navigator.push(
                                     context,
                                     MaterialPageRoute(
-                                        builder: (context) => ListaSitios(usuarioFB['uid'])));
+                                        builder: (context) =>
+                                            ListaSitios(usuarioFB['uid'])));
                               },
                             ),
                           ),
