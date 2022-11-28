@@ -82,11 +82,15 @@ class _LoginPageState extends State<LoginPage> {
         msg = "Usuario registrado con éxito";
         var key =
         (FirebaseAuth.instance.currentUser?.uid); // consultar id usuario
-        getDatos(key.toString());
+        setState(() {
+          getDatos(key.toString());
+        });
+
+
         Navigator.pushReplacement(
             context,
             MaterialPageRoute(
-                builder: (context) => HomePage(key)));
+                builder: (context) => HomePage(usu.uid)));
       }
       _showMsg(msg);
       _llaveValidar.currentState!.validate();
@@ -213,10 +217,14 @@ class _LoginPageState extends State<LoginPage> {
           // print("------------------------>>>>>>>>>>>>>>>>>>><<< ID " + id);
           // print("------------------------>>>>>>>>>>>>>>>>>>><<< " +
           //     pas.data().toString());
-          print('---------------->>>>>>>> ${idDoc}    ***************** ${sitios}');
+          print('---------ID------->>>>>>>> ${idDoc}    ********* sitios ******** ${sitios}');
         }
       }
     });
+    usu = Usuar( sitios[0]['uid'],sitios[0]['name'],sitios[0]['email'],sitios[0]['password'],
+        sitios[0]['genre'],sitios[0]['favoritesGenres'],sitios[0]['bornDate'],sitios[0]['logo'],
+        sitios[0]['descCorta'],sitios[0]['descLarga'],sitios[0]['latitud'],sitios[0]['longitud'],sitios[0]['direccion']
+    );
 
   }
 }
